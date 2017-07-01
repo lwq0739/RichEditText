@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    android:orientation="vertical"
+    tools:context="com.lwq.richedittext.MainActivity"
+
+    >
+
+    <EditText
+        android:id="@+id/et_title"
+        android:layout_marginTop="2dp"
+        android:layout_marginStart="25dp"
+        android:layout_marginEnd="25dp"
+        android:background="@null"
+        android:layout_width="match_parent"
+        android:layout_height="25dp"
+        android:maxLength="20"
+        android:maxLines="1"
+        android:hint="标题"
+        />
+    <View
+        android:layout_marginTop="28dp"
+        android:background="@android:color/darker_gray"
+        android:layout_marginStart="25dp"
+        android:layout_marginEnd="25dp"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"/>
+    <ScrollView
+        android:layout_marginTop="30dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="45dp">
+
+        <com.lwq.richedittext.super_editext.SuperEditText
+            android:id="@+id/richET"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="5dp"
+            android:layout_marginStart="5dp" />
+    </ScrollView>
+
+    <LinearLayout
+
+        android:id="@+id/ll_Bottom_Area"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="#808080"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:id="@+id/rl_extra_area"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+
+            <LinearLayout
+                android:id="@+id/ll_fontsize_area"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:weightSum="6">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="2"
+                    android:gravity="center"
+                    android:text="字体大小"
+                    android:textColor="@android:color/white" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:onClick="onFontSizeAdd"
+                    android:text="+"
+                    android:textColor="@android:color/white" />
+
+                <TextView
+                    android:id="@+id/tv_fontsizeshow"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="17px"
+                    android:textColor="@android:color/white" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:onClick="onFontSizeReduce"
+                    android:text="-"
+                    android:textColor="@android:color/white" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_fontcolor_area"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:weightSum="6">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="2"
+                    android:gravity="center"
+                    android:textColor="@android:color/white"
+                    android:text="字体颜色" />
+
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/rcv_color"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="4">
+
+                </android.support.v7.widget.RecyclerView>
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:background="@android:color/darker_gray" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:layout_alignParentBottom="true"
+                android:background="@android:color/darker_gray" />
+        </RelativeLayout>
+
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:scrollbars="none">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:visibility="visible">
+
+                <ImageView
+                    android:layout_marginStart="10dp"
+                    android:id="@+id/emoticonbuttona"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:onClick="onSave"
+                    android:src="@drawable/ic_save_white_48dp" />
+
+
+                <ImageView
+                    android:layout_marginStart="10dp"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:onClick="onPictureClick"
+                    android:src="@drawable/ic_insert_photo_white_48dp" />
+
+                <ImageView
+                    android:layout_marginStart="10dp"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:onClick="onFontSizeClick"
+                    android:src="@drawable/ic_text_fields_white_48dp" />
+
+                <ImageView
+                    android:layout_marginStart="10dp"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:onClick="onFontColorClick"
+                    android:src="@drawable/ic_text_format_white_48dp" />
+
+                <ImageView
+                    android:layout_marginStart="10dp"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:onClick="onFontBold"
+                    android:src="@drawable/ic_format_bold_white_48dp" />
+
+                <ImageView
+                    android:layout_marginStart="10dp"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:onClick="onFontItalic"
+                    android:src="@drawable/ic_format_italic_white_48dp" />
+
+                <ImageView
+                    android:layout_marginStart="10dp"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:onClick="changeStatus"
+                    android:src="@drawable/ic_lock_outline_white_48dp" />
+
+                <ImageView
+                    android:layout_marginStart="10dp"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:onClick="addUrl"
+                    android:src="@drawable/ic_link_white_48dp" />
+
+                <ImageView
+                    android:layout_marginStart="10dp"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:onClick="addPhonenum"
+                    android:src="@drawable/ic_link_white_48dp" />
+
+
+            </LinearLayout>
+        </HorizontalScrollView>
+    </LinearLayout>
+
+
+</RelativeLayout>

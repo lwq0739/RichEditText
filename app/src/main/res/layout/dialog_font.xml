@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:padding="10dp"
+    android:weightSum="3">
+
+    <LinearLayout
+        android:layout_width="1dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center_horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="颜色选择" />
+
+        <android.support.v7.widget.RecyclerView
+            android:layout_marginTop="10dp"
+            android:id="@+id/rcv_color"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+        </android.support.v7.widget.RecyclerView>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="1dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center_horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="字体选择"
+            />
+
+        <TextView
+            android:id="@+id/tv_style_bold"
+            android:layout_width="100dp"
+            android:layout_height="30dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/selector_check"
+            android:clickable="true"
+            android:gravity="center"
+            android:text="加粗"
+            android:textStyle="bold"
+            android:textSize="20sp"
+            />
+
+        <TextView
+            android:id="@+id/tv_style_italic"
+            android:layout_width="100dp"
+            android:layout_height="30dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/selector_check"
+            android:clickable="true"
+            android:gravity="center"
+            android:text="倾斜"
+            android:textStyle="italic"
+            android:textSize="20sp"/>
+
+        <TextView
+            android:id="@+id/tv_size_big"
+            android:layout_width="100dp"
+            android:layout_height="30dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/selector_check"
+            android:clickable="true"
+            android:gravity="center"
+            android:text="大字体"
+            android:textSize="24sp" />
+
+        <TextView
+            android:id="@+id/tv_size_normal"
+            android:layout_width="100dp"
+            android:layout_height="30dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/selector_check"
+            android:clickable="true"
+            android:gravity="center"
+            android:textSize="20sp"
+            android:text="普通字体" />
+
+        <TextView
+            android:id="@+id/tv_size_small"
+            android:layout_width="100dp"
+            android:layout_height="30dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/selector_check"
+            android:clickable="true"
+            android:gravity="center"
+            android:text="小字体"
+            android:textSize="17sp" />
+        <Button
+            android:id="@+id/btn_confirm"
+            android:layout_marginTop="15dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/white"
+            android:background="@drawable/shape_check"
+            android:text="确定"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="1dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center_horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="布局选择"
+            />
+        <TextView
+            android:id="@+id/tv_gravity_left"
+            android:layout_width="100dp"
+            android:layout_height="30dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/selector_check"
+            android:clickable="true"
+            android:gravity="center"
+            android:textSize="20sp"
+            android:text="左" />
+        <TextView
+            android:id="@+id/tv_gravity_center"
+            android:layout_width="100dp"
+            android:layout_height="30dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/selector_check"
+            android:clickable="true"
+            android:gravity="center"
+            android:textSize="20sp"
+            android:text="中" />
+        <TextView
+            android:id="@+id/tv_gravity_right"
+            android:layout_width="100dp"
+            android:layout_height="30dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/selector_check"
+            android:clickable="true"
+            android:gravity="center"
+            android:textSize="20sp"
+            android:text="右" />
+    </LinearLayout>
+
+
+</LinearLayout>
