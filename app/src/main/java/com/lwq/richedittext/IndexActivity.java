@@ -10,9 +10,7 @@ import android.view.View;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.lwq.richedittext.super_editext.Constant;
-import com.lwq.richedittext.super_editext.FileData;
-import com.lwq.richedittext.super_editext.FileUtils;
+import com.lwq.richedittext.super_editext.model.FileData;
 import com.lwq.richedittext.super_editext.SharedPreferencesUtils;
 
 import java.util.ArrayList;

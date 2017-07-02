@@ -1,4 +1,4 @@
-package com.lwq.richedittext.super_editext;
+package com.lwq.richedittext.super_editext.model;
 
 /**
  * Created by lwq on 2017/6/26.

@@ -2,20 +2,14 @@ package com.lwq.richedittext;
 
 import android.content.Context;
 import android.content.Intent;
-import android.provider.MediaStore;
-import android.support.annotation.ColorInt;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.lwq.richedittext.super_editext.FileData;
-import com.lwq.richedittext.super_editext.FileUtils;
+import com.lwq.richedittext.super_editext.model.FileData;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 
 /**

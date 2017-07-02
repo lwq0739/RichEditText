@@ -1,4 +1,4 @@
-package com.lwq.richedittext.super_editext;
+package com.lwq.richedittext.super_editext.utils;
 
 import android.annotation.TargetApi;
 import android.content.ContentResolver;

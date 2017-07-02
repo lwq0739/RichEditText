@@ -3,19 +3,16 @@ package com.lwq.richedittext.super_editext;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.ColorInt;
 import android.support.annotation.Nullable;
-import android.text.Editable;
 import android.text.Layout;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.AbsoluteSizeSpan;
-import android.text.style.CharacterStyle;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.ImageSpan;
@@ -24,7 +21,6 @@ import android.text.style.URLSpan;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
-import android.view.ViewTreeObserver;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.view.inputmethod.InputConnectionWrapper;
@@ -33,10 +29,19 @@ import android.view.inputmethod.InputMethodManager;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
+import com.lwq.richedittext.super_editext.model.JsonData;
+import com.lwq.richedittext.super_editext.model.PaintBrush;
+import com.lwq.richedittext.super_editext.utils.BitmapUtils;
+import com.lwq.richedittext.super_editext.utils.FileUtils;
+import com.lwq.richedittext.super_editext.utils.LogUtils;
+import com.lwq.richedittext.super_editext.utils.Md5Utils;
+import com.lwq.richedittext.super_editext.utils.PathByUri;
+import com.lwq.richedittext.super_editext.utils.TimeUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * User:lwq
@@ -76,7 +81,7 @@ public class SuperEditText extends android.support.v7.widget.AppCompatEditText {
     //handler事件处理
     private final int INSERT_TEXT = 1;
     private final int INSERT_IMG = 2;
-    private final int READFINISH = 3;
+    private final int INSERT_LOCAL_DATA = 3;
     private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -89,19 +94,16 @@ public class SuperEditText extends android.support.v7.widget.AppCompatEditText {
                 case INSERT_IMG:
                     JsonData.ImgData imgData = (JsonData.ImgData) msg.obj;
                     insertImg(mTempBitmap, imgData.getLoclPath(), imgData.getUrlPath());
-                    insertText(null, "\n", null);
                     //添加图片成功回调
                     onAddImgSuccess();
                     break;
-                case READFINISH:
-                    //读取文件成功回调
-                    onReadFileSuccess();
+                case INSERT_LOCAL_DATA:
+                    insertLocalData();
+
                     break;
             }
         }
     };
-
-
 
     public SuperEditText(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
@@ -124,7 +126,6 @@ public class SuperEditText extends android.support.v7.widget.AppCompatEditText {
     private void init(Context context) {
         this.mContext = context;
         setBackground(null);
-
     }
 
     //******************************公共方法********************************************************//
@@ -164,13 +165,14 @@ public class SuperEditText extends android.support.v7.widget.AppCompatEditText {
 
     /**
      * 更变文本编辑状态 (不可编辑状态 无法插入文字 图片等 可点击链接)
+     *
      * @param canEditable 是否可以编辑
      */
     public void changeEditable(boolean canEditable) {
         mCanEditable = canEditable;
         setCursorVisible(canEditable);
 
-        if (!mCanEditable){
+        if (!mCanEditable) {
             InputMethodManager imm = (InputMethodManager) mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(getWindowToken(), 0); //强制隐藏键盘
         }
@@ -179,8 +181,9 @@ public class SuperEditText extends android.support.v7.widget.AppCompatEditText {
 
     /**
      * 插入url链接 只在不可编辑状态下点击跳转
+     *
      * @param text 名称
-     * @param url url地址
+     * @param url  url地址
      */
     public void addUrl(String text, String url) {
         insertText(getPaintBrush(), text, url);
@@ -188,7 +191,8 @@ public class SuperEditText extends android.support.v7.widget.AppCompatEditText {
 
     /**
      * 插入tel链接 只在不可编辑状态下点击跳转
-     * @param text 名称
+     *
+     * @param text     名称
      * @param phonenum 手机号码
      */
     public void addTel(String text, String phonenum) {
@@ -242,73 +246,111 @@ public class SuperEditText extends android.support.v7.widget.AppCompatEditText {
     private String mFileName = "";
     private String mTitle = "";
     private String mLastEditTime = "";
+    private HashMap<String, Bitmap> mLocalFileImgs;
+    private ArrayList<JsonData> mLocalFileDatas;
 
     /**
      * 读取数据file
+     *
      * @param file file
      */
-    public void readFileData(File file) {
-        String[] data;
-        try {
-            data = FileUtils.readSDFile(file.getAbsolutePath()).split("\n");
-        } catch (IOException e) {
-            //读取文件失败回调
-            onReadFileFail(e.getMessage());
-            e.printStackTrace();
-            return;
-        }
-
-        mFileName = file.getName();
-        mTitle = data[0];
-        mLastEditTime = data[1];
-        String textdata = data[2];
-
-        //数据解析
-        final ArrayList<JsonData> jsonDataList;
-        try {
-            jsonDataList = new Gson().fromJson(textdata, new TypeToken<ArrayList<JsonData>>() {
-            }.getType());
-        } catch (JsonSyntaxException e) {
-            onReadFileFail(e.getMessage());
-            e.printStackTrace();
-            return;
-        }
-
-        //等待editextview绘制完成
-        getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+    public void readFileData(final File file) {
+        new Thread() {
             @Override
-            public void onGlobalLayout() {
-                new Thread() {
-                    @Override
-                    public void run() {
-                        super.run();
-                        //数据填充
-                        for (JsonData data : jsonDataList) {
+            public void run() {
+                super.run();
+
+                //数据读取
+                String[] datas;
+                try {
+                    datas = FileUtils.readSDFile(file.getAbsolutePath()).split("\n");
+                } catch (IOException e) {
+                    //读取文件失败回调
+                    onReadFileFail(e.getMessage());
+                    e.printStackTrace();
+                    return;
+                }
+
+                mFileName = file.getName();
+                mTitle = datas[0];
+                mLastEditTime = datas[1];
+                String textdata = datas[2];
+
+                //数据解析
+                try {
+                    mLocalFileDatas = new Gson().fromJson(textdata, new TypeToken<ArrayList<JsonData>>() {
+                    }.getType());
+                } catch (JsonSyntaxException e) {
+                    onReadFileFail(e.getMessage());
+                    e.printStackTrace();
+                    return;
+                }
+
+                /////////////////////////////////////////////////////////////////////////////////////
+
+
+
+                while (true){
+                    if (getWidth()!=0){
+                        mLocalFileImgs = new HashMap<>();
+                        for (JsonData data : mLocalFileDatas) {
                             if (data == null) {
                                 continue;
                             }
                             if (data.getType() == 2) {//图片
-                                if (change_image(data.getImgData().getLoclPath(), true)!=null){
-                                    sendMessage(INSERT_IMG, data.getImgData());
+                                Bitmap localbitmap = change_image(data.getImgData().getLoclPath(), true);
+                                //图片处理
+                                if (localbitmap != null) {
+                                    mLocalFileImgs.put(data.getImgData().getLoclPath(), localbitmap);
                                 }
-                            } else if (data.getType() == 1) {//文字
-                                sendMessage(INSERT_TEXT, data.getTextData());
                             }
                         }
-                        //填充完成
-                        sendMessage(READFINISH, "");
+                        sendMessage(INSERT_LOCAL_DATA, null);
+                        break;
+                    }else {
+                        try {
+                            Thread.sleep(100);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
                     }
-                }.start();
-                //删除监听
-                getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                }
             }
-        });
-        System.out.println("asdasd  " + textdata);
+        }.start();
 
+
+//        System.out.println("asdasd  " + textdata);
+
+    }
+
+    private void insertLocalData() {
+        //读取本地数据
+        //数据填充
+        for (JsonData data : mLocalFileDatas) {
+            if (data == null) {
+                continue;
+            }
+            if (data.getType() == 2) {//图片
+                JsonData.ImgData imgdata = data.getImgData();
+                Bitmap bitmap = mLocalFileImgs.get(data.getImgData().getLoclPath());
+                //图片处理
+                if (bitmap != null) {
+                    insertImg(bitmap, imgdata.getLoclPath(), imgdata.getUrlPath());
+                }
+            } else if (data.getType() == 1) {//文字
+                JsonData.TextData textdata = data.getTextData();
+                insertText(textdata.getPaintBrush(), textdata.getText(), textdata.getUrl());
+            }
+        }
+        //读取文件结束回调
+        onReadFileSuccess();
+        mLocalFileDatas = null;
+        mLocalFileImgs = null;
     }
 
     /**
      * 获得数据集合jsonDatas的json字符串
+     *
      * @return jsonDatas的json字符串
      */
     public String getResultData() {
@@ -318,6 +360,7 @@ public class SuperEditText extends android.support.v7.widget.AppCompatEditText {
 
     /**
      * 保存结果数据
+     *
      * @param title 标题
      * @return 保存文件的地址
      */
@@ -325,19 +368,19 @@ public class SuperEditText extends android.support.v7.widget.AppCompatEditText {
         String finalfilename = mFileName;
         String finalfilepath = "";
         //1文本文件已经存在 直接更新文件 不使用传入的filepath
-        //2文本文件不存在 判断是否传入文件名 ①如果传入 使用传入文件名  ②如果没有  使用时间戳加md5作为文件名
+        //2文本文件不存在  使用时间戳加md5作为文件名
         if (TextUtils.isEmpty(mFileName)) {//文件不存在
-            finalfilename =  Md5Utils.md5(TimeUtils.getTime()) ;
+            finalfilename = Md5Utils.md5(TimeUtils.getTime());
         }
 
-        System.out.println("lwqlw  " + finalfilename + "    " + title+"   " + TimeUtils.getTime() + "   " + getResultData());
+        LogUtils.i(finalfilename + "    " + title + "   " + TimeUtils.getTime() + "   " + getResultData());
         try {
-            finalfilepath=FileUtils.createSDNewFile(Constant.SAVE_PATH, finalfilename);
+            finalfilepath = FileUtils.createSDNewFile(Constant.SAVE_PATH, finalfilename);
             FileUtils.print(finalfilepath, title + "\n" + TimeUtils.getTime() + "\n" + getResultData());
             onSaveFileSuccess();
         } catch (IOException e) {
             onSaveFileFail(e.getMessage());
-            if (!TextUtils.isEmpty(finalfilepath)){
+            if (!TextUtils.isEmpty(finalfilepath)) {
                 File file = new File(finalfilepath);
                 file.delete();
             }
@@ -352,7 +395,8 @@ public class SuperEditText extends android.support.v7.widget.AppCompatEditText {
 
     /**
      * 图片处理 压缩 与 缩放
-     * @param filePath 图片路径
+     *
+     * @param filePath  图片路径
      * @param fitscreen 是否缩放到当前文本宽度
      * @return 处理后的Bitmap
      */
@@ -364,7 +408,7 @@ public class SuperEditText extends android.support.v7.widget.AppCompatEditText {
         int zoomWidth = getWidth() - (paddingLeft + paddingRight);
         Bitmap bitmap = null;
         try {
-            bitmap = BitmapUtils.getBitmapFormUri(mContext, filePath, zoomWidth);
+            bitmap = BitmapUtils.getBitmapFormPath( filePath, zoomWidth);
         } catch (IOException e) {
             //添加照片失败
             onAddImgFail(e.getMessage());
@@ -386,6 +430,7 @@ public class SuperEditText extends android.support.v7.widget.AppCompatEditText {
 
     /**
      * 异步插入图片
+     *
      * @param filePath 图片路径
      */
     private void addImage_asynchronous(final String filePath) {
@@ -399,11 +444,15 @@ public class SuperEditText extends android.support.v7.widget.AppCompatEditText {
             @Override
             public void run() {
                 super.run();
-                if (change_image(filePath, true)!=null){
+                if (change_image(filePath, true) != null) {
                     JsonData.ImgData imgData = new JsonData.ImgData();
                     imgData.setLoclPath(filePath);
                     imgData.setUrlPath("");
                     sendMessage(INSERT_IMG, imgData);
+                    //手动插入图片加个回车方便编辑
+                    JsonData.TextData textData = new JsonData.TextData();
+                    textData.setText("\n");
+                    sendMessage(INSERT_TEXT, textData);
                 }
             }
         }.start();
@@ -419,9 +468,10 @@ public class SuperEditText extends android.support.v7.widget.AppCompatEditText {
 
     /**
      * 插入图片
-     * @param bitmap bitmap
+     *
+     * @param bitmap    bitmap
      * @param localpath 本地路径
-     * @param url url路径
+     * @param url       url路径
      */
     private void insertImg(Bitmap bitmap, String localpath, String url) {
         ImageSpan imgSpan = new ImageSpan(mContext, bitmap);
@@ -438,12 +488,13 @@ public class SuperEditText extends android.support.v7.widget.AppCompatEditText {
 
     /**
      * 插入文本
+     *
      * @param paintBrush 画笔 可以为空
-     * @param text 文本内容
-     * @param url 可点击文本地址 可以为空
+     * @param text       文本内容
+     * @param url        可点击文本地址 可以为空
      */
-    private void insertText(@Nullable PaintBrush paintBrush, String text,@Nullable String url) {
-        if (!mCanEditable){
+    private void insertText(@Nullable PaintBrush paintBrush, String text, @Nullable String url) {
+        if (!mCanEditable) {
             onWarn("不可编辑状态(阅读模式/正在插入图片)");
             return;
         }
@@ -488,10 +539,11 @@ public class SuperEditText extends android.support.v7.widget.AppCompatEditText {
 
     /**
      * 更新图片数据到jsonDatas
+     *
      * @param loclpath 本地图片地址
-     * @param urlpath url地址
-     * @param start 开始位置
-     * @param end 结束位置
+     * @param urlpath  url地址
+     * @param start    开始位置
+     * @param end      结束位置
      */
     private void updataImg(String loclpath, String urlpath, int start, int end) {
         int sum = end - start;
@@ -512,12 +564,13 @@ public class SuperEditText extends android.support.v7.widget.AppCompatEditText {
 
     /**
      * 更新文本数据到jsonDatas
-     * @param text 文本信息
-     * @param start 开始位置
+     *
+     * @param text       文本信息
+     * @param start      开始位置
      * @param paintBrush 画笔
-     * @param url 链接地址
+     * @param url        链接地址
      */
-    private void updataText(String text, int start, PaintBrush paintBrush,@Nullable String url) {
+    private void updataText(String text, int start, PaintBrush paintBrush, @Nullable String url) {
         for (int i = 0; i < text.length(); i++) {
             String s = text.substring(i, i + 1);
             JsonData jsonData = new JsonData();
@@ -540,7 +593,6 @@ public class SuperEditText extends android.support.v7.widget.AppCompatEditText {
         }
 
     }
-
 
 
     private void onWarn(String msg) {

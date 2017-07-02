@@ -5,12 +5,10 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.ColorInt;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -25,14 +23,11 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
-import com.lwq.richedittext.super_editext.FileData;
-import com.lwq.richedittext.super_editext.FileUtils;
-import com.lwq.richedittext.super_editext.JsonData;
+import com.lwq.richedittext.super_editext.model.FileData;
 import com.lwq.richedittext.super_editext.SharedPreferencesUtils;
 import com.lwq.richedittext.super_editext.SuperEditText;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 
 public class MainActivity extends Activity {

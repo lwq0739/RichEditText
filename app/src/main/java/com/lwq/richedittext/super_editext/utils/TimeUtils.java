@@ -1,4 +1,4 @@
-package com.lwq.richedittext.super_editext;
+package com.lwq.richedittext.super_editext.utils;
 
 /**
  * User:lwq
