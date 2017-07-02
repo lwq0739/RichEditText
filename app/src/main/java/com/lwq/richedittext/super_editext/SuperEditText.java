@@ -286,10 +286,7 @@ public class SuperEditText extends android.support.v7.widget.AppCompatEditText {
                     return;
                 }
 
-                /////////////////////////////////////////////////////////////////////////////////////
-
-
-
+                //等待视图加载完毕 填充数据
                 while (true){
                     if (getWidth()!=0){
                         mLocalFileImgs = new HashMap<>();
@@ -317,10 +314,6 @@ public class SuperEditText extends android.support.v7.widget.AppCompatEditText {
                 }
             }
         }.start();
-
-
-//        System.out.println("asdasd  " + textdata);
-
     }
 
     private void insertLocalData() {
@@ -660,7 +653,6 @@ public class SuperEditText extends android.support.v7.widget.AppCompatEditText {
             int backstart = getSelectionStart();
             if (backend - backstart == 1) {//字符
                 jsonDatas.remove(backstart);
-                System.out.println(jsonDatas.toString());
             } else if (backend - backstart > 1) {//图片
                 for (int i = 0; i < backend - backstart; i++) { //计算图片在文中长度 并删除相应的占位符
                     jsonDatas.remove(backstart);
