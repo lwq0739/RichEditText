@@ -1,20 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    android:layout_marginTop="5dp"
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
     android:layout_gravity="center_horizontal"
+    android:layout_marginTop="5dp"
     android:background="@drawable/shape_check"
-   >
+    android:orientation="horizontal">
 
     <TextView
-        android:gravity="center"
-        android:textSize="20sp"
         android:id="@+id/tv_title"
-        android:layout_margin="5dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="aaaaaaaaaaaaaa"/>
-</LinearLayout>
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="50dp"
+        android:gravity="center"
+        android:text=""
+        android:textSize="20sp" />
+
+    <ImageView
+        android:id="@+id/iv_delete"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:layout_alignParentRight="true"
+        android:layout_marginEnd="10dp"
+        android:background="@drawable/ic_remove_circle_outline_white_48dp" />
+</RelativeLayout>

@@ -33,7 +33,6 @@ import java.util.ArrayList;
 public class MainActivity extends BaseActivity {
 
 
-
     protected final int CHOOSE_PICTURE = 1;
     private LinearLayout ll_Bottom_Area;
     private SuperEditText richET;
@@ -47,19 +46,19 @@ public class MainActivity extends BaseActivity {
     //字体颜色更改
     private LinearLayout ll_fontcolor_area;
     private RecyclerView rcv_color;
-    private WaitDialog mReadWaitDialog ;
+    private WaitDialog mReadWaitDialog;
     private WaitDialog mSaveWaitDialog;
     private WaitDialog mAddImgWaitDialog;
 
 
     @Override
     protected View initView() {
-        String title=getIntent().getStringExtra("title");
+        String title = getIntent().getStringExtra("title");
 
-        View view = View.inflate(this,R.layout.activity_main,null);
+        View view = View.inflate(this, R.layout.activity_main, null);
 
         richET = (SuperEditText) view.findViewById(R.id.richET);
-        et_title= (EditText) view.findViewById(R.id.et_title);
+        et_title = (EditText) view.findViewById(R.id.et_title);
         et_title.setText(title);
         ll_Bottom_Area = (LinearLayout) view.findViewById(R.id.ll_Bottom_Area);
         rl_extra_area = (RelativeLayout) view.findViewById(R.id.rl_extra_area);
@@ -76,7 +75,7 @@ public class MainActivity extends BaseActivity {
         et_title.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
-                if (keyCode==KeyEvent.KEYCODE_ENTER){
+                if (keyCode == KeyEvent.KEYCODE_ENTER) {
                     return true;
                 }
                 return false;
@@ -86,51 +85,51 @@ public class MainActivity extends BaseActivity {
             @Override
             public void onReadFileFail(String msg) {
                 mReadWaitDialog.dismiss();
-                Toast.makeText(MainActivity.this,"读取文件失败"+msg,Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "读取文件失败" + msg, Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onReadFileSuccess() {
                 mReadWaitDialog.dismiss();
-                Toast.makeText(MainActivity.this,"读取文件成功",Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "读取文件成功", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onSaveFileFail(String msg) {
                 mSaveWaitDialog.dismiss();
-                Toast.makeText(MainActivity.this,"保存文件失败"+msg,Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "保存文件失败" + msg, Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onSaveFileSuccess() {
                 mSaveWaitDialog.dismiss();
-                Toast.makeText(MainActivity.this,"保存文件成功",Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "保存文件成功", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onAddImgSuccess() {
                 mAddImgWaitDialog.dismiss();
-                Toast.makeText(MainActivity.this,"添加图片成功",Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "添加图片成功", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onAddImgFail(String msg) {
                 mAddImgWaitDialog.dismiss();
-                Toast.makeText(MainActivity.this,"添加图片失败"+msg,Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "添加图片失败" + msg, Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onWarn(String msg) {
-                Toast.makeText(MainActivity.this,"警告:"+msg,Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "警告:" + msg, Toast.LENGTH_SHORT).show();
             }
         });
     }
 
     @Override
     protected void initData() {
-        mReadWaitDialog=new WaitDialog(this,"正在读取文件请稍后");
-        mSaveWaitDialog=new WaitDialog(this,"正在保存文件请稍后");
-        mAddImgWaitDialog=new WaitDialog(this,"正在添加图片请稍后");
+        mReadWaitDialog = new WaitDialog(this, "正在读取文件请稍后");
+        mSaveWaitDialog = new WaitDialog(this, "正在保存文件请稍后");
+        mAddImgWaitDialog = new WaitDialog(this, "正在添加图片请稍后");
 
         //颜色数据填充
         ArrayList<Integer> colors = new ArrayList<>();
@@ -162,57 +161,64 @@ public class MainActivity extends BaseActivity {
 
     /**
      * 按钮1保存
+     *
      * @param view
      */
     public void onSave(View view) {
         String title = et_title.getText().toString();
-        if (TextUtils.isEmpty(title)){
-            Toast.makeText(this,"题目不能为空",Toast.LENGTH_SHORT).show();
-        }else {
-            ArrayList<FileData> fileDatas ;
+        if (TextUtils.isEmpty(title)) {
+            Toast.makeText(this, "题目不能为空", Toast.LENGTH_SHORT).show();
+        } else {
+
             //弹出等待对话框
             mSaveWaitDialog.show();
             //保存文件 并获取文件绝对路径
-            String filepath=richET.saveResultData(title);
+            String filepath = richET.saveResultData(title);
 
             //以下都为数据保存
-            FileData newfileData = new FileData(filepath,title);
-            String localFileDatas = (String) SharedPreferencesUtils.getParam(this,"file_datas","");
+            FileData newfileData = new FileData(filepath, title);
 
-            //有数据情况下
-            if (!TextUtils.isEmpty(localFileDatas)){
-                try {
-                    //解析数据
-                    fileDatas = new Gson().fromJson(localFileDatas, new TypeToken<ArrayList<FileData>>() {
-                    }.getType());
-                    //判断是否已经存在
-                    if (fileDatas.contains(newfileData)){//已经存在 标题有可能改变 所以更新下标题
-                        int position=fileDatas.indexOf(newfileData);
-                        fileDatas.get(position).setFile_title(newfileData.getFile_title());
-                    }else {//不存在 直接加入
-                        fileDatas.add(newfileData);
-                    }
-                    //最后保存数据
-                    String newFileDatasJson=new Gson().toJson(fileDatas);
-                    SharedPreferencesUtils.setParam(this,"file_datas",newFileDatasJson);
-                    return;
-
-                } catch (JsonSyntaxException e) {
-                    //取消
-                    mSaveWaitDialog.dismiss();
-                    e.printStackTrace();
-                }
+            try {
+                saveFileInformation(newfileData);
+            } catch (Exception e) {
+                e.printStackTrace();
+                mSaveWaitDialog.dismiss();
             }
-            //以前的数据为空 或者 解析异常直接重置
-            fileDatas=new ArrayList<>();
-            fileDatas.add(newfileData);
-            String newFileDatasJson=new Gson().toJson(fileDatas);
-            SharedPreferencesUtils.setParam(this,"file_datas",newFileDatasJson);
+
         }
+    }
+
+    private void saveFileInformation(FileData newfileData) throws Exception {
+        String localFileDatas = (String) SharedPreferencesUtils.getParam(this, "file_datas", "");
+        ArrayList<FileData> fileDatas;
+        //有数据情况下
+        if (!TextUtils.isEmpty(localFileDatas)) {
+            //解析数据
+            fileDatas = new Gson().fromJson(localFileDatas, new TypeToken<ArrayList<FileData>>() {
+            }.getType());
+            //判断是否已经存在
+            if (fileDatas.contains(newfileData)) {//已经存在 标题有可能改变 所以更新下标题
+                int position = fileDatas.indexOf(newfileData);
+                fileDatas.get(position).setFile_title(newfileData.getFile_title());
+            } else {//不存在 直接加入
+                fileDatas.add(newfileData);
+            }
+            //最后保存数据
+            String newFileDatasJson = new Gson().toJson(fileDatas);
+            SharedPreferencesUtils.setParam(this, "file_datas", newFileDatasJson);
+            return;
+
+        }
+        //以前的数据为空 或者 解析异常直接重置
+        fileDatas = new ArrayList<>();
+        fileDatas.add(newfileData);
+        String newFileDatasJson = new Gson().toJson(fileDatas);
+        SharedPreferencesUtils.setParam(this, "file_datas", newFileDatasJson);
     }
 
     /**
      * 按钮2添加图片
+     *
      * @param view
      */
     public void onPictureClick(View view) {
@@ -223,6 +229,7 @@ public class MainActivity extends BaseActivity {
 
     /**
      * 按钮3改变画笔大小
+     *
      * @param view
      */
     public void onFontSizeClick(View view) {
@@ -245,6 +252,7 @@ public class MainActivity extends BaseActivity {
 
     /**
      * 按钮4改变画笔颜色
+     *
      * @param view
      */
     public void onFontColorClick(View view) {
@@ -276,6 +284,7 @@ public class MainActivity extends BaseActivity {
 
     /**
      * 按钮5字体加粗
+     *
      * @param view
      */
     public void onFontBold(View view) {
@@ -286,6 +295,7 @@ public class MainActivity extends BaseActivity {
 
     /**
      * 按钮6字体倾斜
+     *
      * @param view
      */
     public void onFontItalic(View view) {
@@ -309,18 +319,21 @@ public class MainActivity extends BaseActivity {
     }
 
     private boolean isEditable = false;
+
     /**
      * 按钮7锁定 阅读模式与编辑模式切换
+     *
      * @param view
      */
     public void changeStatus(View view) {
-        Toast.makeText(this,isEditable?"编辑模式":"阅读模式",Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, isEditable ? "编辑模式" : "阅读模式", Toast.LENGTH_SHORT).show();
         richET.changeEditable(isEditable);
         isEditable = !isEditable;
     }
 
     /**
      * 按钮8 插入url链接
+     *
      * @param view
      */
     public void addUrl(View view) {
@@ -335,6 +348,7 @@ public class MainActivity extends BaseActivity {
 
     /**
      * 按钮9 插入手机号码链接
+     *
      * @param view
      */
     public void addPhonenum(View view) {
@@ -346,13 +360,6 @@ public class MainActivity extends BaseActivity {
         });
         urlDialog.show();
     }
-
-
-
-
-
-
-
 
 
     @Override

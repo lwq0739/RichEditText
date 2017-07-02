@@ -2,10 +2,12 @@ package com.lwq.richedittext;
 
 import android.content.Context;
 import android.content.Intent;
+import android.support.v7.view.menu.MenuView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.lwq.richedittext.super_editext.model.FileData;
@@ -23,10 +25,12 @@ class DataAdapter extends RecyclerView.Adapter {
 
     private Context mContext;
     private ArrayList<FileData> mFiles;
+    private OnViewClickListener mOnViewClickListener;
 
-    DataAdapter(Context context,ArrayList<FileData> fileDatas) {
+    DataAdapter(Context context,ArrayList<FileData> fileDatas,OnViewClickListener onViewClickListener) {
         mFiles=fileDatas;
         mContext = context;
+        mOnViewClickListener=onViewClickListener;
     }
 
     @Override
@@ -42,13 +46,31 @@ class DataAdapter extends RecyclerView.Adapter {
         dataHolder.tv_title.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(mContext,MainActivity.class);
-                intent.putExtra("filepath",mFiles.get(holder.getAdapterPosition()).getFile_path());
-                intent.putExtra("title",mFiles.get(holder.getAdapterPosition()).getFile_title());
-                mContext.startActivity(intent);
+                if (mOnViewClickListener!=null){
+                    mOnViewClickListener.onTitleClick(mFiles.get(holder.getAdapterPosition()));
+                }
+
+            }
+        });
+        dataHolder.iv_delete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mOnViewClickListener!=null){
+                    mOnViewClickListener.onDeleteClick(mFiles.get(holder.getAdapterPosition()));
+                }
             }
         });
 
+    }
+
+    public void notifyDataSetChanged(ArrayList<FileData> fileDatas){
+        mFiles=fileDatas;
+        notifyDataSetChanged();
+    }
+
+    interface OnViewClickListener{
+        void onDeleteClick(FileData fileData);
+        void onTitleClick(FileData fileData);
     }
 
     @Override
@@ -59,10 +81,12 @@ class DataAdapter extends RecyclerView.Adapter {
 
     private class DataHolder extends RecyclerView.ViewHolder {
         TextView tv_title;
+        ImageView iv_delete;
 
         DataHolder(View itemView) {
             super(itemView);
             tv_title = (TextView) itemView.findViewById(R.id.tv_title);
+            iv_delete = (ImageView) itemView.findViewById(R.id.iv_delete);
         }
     }
 }
