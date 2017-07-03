@@ -6,7 +6,7 @@
 
 ### 将数据转化json与解析json成相应文章
 这里只展示部分截取的json
-`
+```
 [
     {
         "textData": {
@@ -57,10 +57,11 @@
         "type": 1
     }
 ]
-`
+```
 
 ### 使用
-`
+
+```
         <ScrollView
         android:layout_marginTop="30dp"
         android:layout_width="match_parent"
@@ -74,4 +75,4 @@
             android:layout_marginEnd="5dp"
             android:layout_marginStart="5dp" />
         </ScrollView>
-`
+```
