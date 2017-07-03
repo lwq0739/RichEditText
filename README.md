@@ -4,6 +4,8 @@
 
 ![image](https://github.com/lwq0739/RichEditText/blob/master/Screenshot/Screenshot_1.png)
 
+![image](https://github.com/lwq0739/RichEditText/blob/master/Screenshot/gif_0-2519.gif)
+
 ### 将数据转化json与解析json成相应文章
 这里只展示部分截取的json
 ```
